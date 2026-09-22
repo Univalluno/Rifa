@@ -1,10 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
-export default function RegistroPage() {
-  const [form, setForm] = useState({
+type FormData = {
+  cedula: string;
+  nombre: string;
+  telefono: string;
+  direccion: string;
+  correo: string;
+};
+
+function RegistroForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [form, setForm] = useState<FormData>({
     cedula: "",
     nombre: "",
     telefono: "",
@@ -12,31 +25,62 @@ export default function RegistroPage() {
     correo: "",
   });
   const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
+
+  // Autocompletar cédula desde la URL
+  useEffect(() => {
+    const cedulaUrl = searchParams.get("cedula");
+    if (cedulaUrl) {
+      setForm((prev) => ({ ...prev, cedula: cedulaUrl }));
+    }
+  }, [searchParams]);
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
 
-    if (!form.cedula.trim() || !form.nombre.trim() || !form.telefono.trim() || !form.direccion.trim()) {
+    if (
+      !form.cedula.trim() ||
+      !form.nombre.trim() ||
+      !form.telefono.trim() ||
+      !form.direccion.trim()
+    ) {
       setError("Completa los campos obligatorios.");
       return;
     }
 
-    // Aquí conectaremos con Supabase (siguiente paso)
-    console.log("Registro:", form);
+    setCargando(true);
+
+    const { error: dbError } = await supabase.from("participants").insert({
+      cedula: form.cedula.trim(),
+      nombre: form.nombre.trim(),
+      telefono: form.telefono.trim(),
+      direccion: form.direccion.trim(),
+      correo: form.correo.trim() || null,
+    });
+
+    setCargando(false);
+
+    if (dbError) {
+      setError("No se pudo registrar. Intenta de nuevo.");
+      console.error(dbError);
+      return;
+    }
+
+    router.push(`/rifa?cedula=${encodeURIComponent(form.cedula)}`);
   }
 
   return (
     <main className="min-h-screen flex flex-col px-6 py-12">
       <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-md space-y-8">
-
           <div className="text-center space-y-3">
             <Link
               href="/login"
@@ -51,7 +95,6 @@ export default function RegistroPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-
             <div className="space-y-2">
               <label className="block text-xs tracking-[0.3em] uppercase text-muted">
                 Cédula *
@@ -130,14 +173,22 @@ export default function RegistroPage() {
 
             <button
               type="submit"
-              className="w-full bg-gold text-carbon py-4 text-sm tracking-[0.3em] uppercase font-medium transition-all hover:bg-bone hover:tracking-[0.4em]"
+              disabled={cargando}
+              className="w-full bg-gold text-carbon py-4 text-sm tracking-[0.3em] uppercase font-medium transition-all hover:bg-bone hover:tracking-[0.4em] disabled:opacity-50"
             >
-              Continuar
+              {cargando ? "Guardando..." : "Continuar"}
             </button>
           </form>
-
         </div>
       </div>
     </main>
+  );
+}
+
+export default function RegistroPage() {
+  return (
+    <Suspense fallback={null}>
+      <RegistroForm />
+    </Suspense>
   );
 }

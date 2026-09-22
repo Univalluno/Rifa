@@ -1,14 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [cedula, setCedula] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
 
@@ -22,15 +26,34 @@ export default function LoginPage() {
       return;
     }
 
-    // Aquí conectaremos con la base de datos (Paso siguiente)
-    console.log("Entrar con cédula:", cedula);
+    setCargando(true);
+
+    const { data, error: dbError } = await supabase
+      .from("participants")
+      .select("cedula")
+      .eq("cedula", cedula)
+      .maybeSingle();
+
+    setCargando(false);
+
+    if (dbError) {
+      setError("Error de conexión. Intenta de nuevo.");
+      return;
+    }
+
+    if (data) {
+      // Ya existe → al tablero
+      router.push(`/rifa?cedula=${encodeURIComponent(cedula)}`);
+    } else {
+      // No existe → al registro
+      router.push(`/registro?cedula=${encodeURIComponent(cedula)}`);
+    }
   }
 
   return (
     <main className="min-h-screen flex flex-col px-6">
       <div className="flex-1 flex items-center justify-center">
         <div className="w-full max-w-md space-y-8">
-
           <div className="text-center space-y-3">
             <Link
               href="/"
@@ -87,16 +110,16 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              className="w-full bg-gold text-carbon py-4 text-sm tracking-[0.3em] uppercase font-medium transition-all hover:bg-bone hover:tracking-[0.4em]"
+              disabled={cargando}
+              className="w-full bg-gold text-carbon py-4 text-sm tracking-[0.3em] uppercase font-medium transition-all hover:bg-bone hover:tracking-[0.4em] disabled:opacity-50"
             >
-              Entrar
+              {cargando ? "Verificando..." : "Entrar"}
             </button>
           </form>
 
           <p className="text-muted text-xs text-center leading-relaxed">
             Si es tu primera vez, se creará tu cuenta automáticamente.
           </p>
-
         </div>
       </div>
     </main>

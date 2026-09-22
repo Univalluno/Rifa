@@ -32,9 +32,7 @@ export default function Home() {
             >
               Participar
             </Link>
-            <p className="text-muted text-xs">
-              Solo toma 30 segundos
-            </p>
+            <p className="text-muted text-xs">Solo toma 30 segundos</p>
           </div>
         </div>
       </div>

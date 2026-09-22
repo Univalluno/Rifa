@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const inter = Inter({
@@ -33,6 +34,17 @@ export default function RootLayout({
     <html lang="es">
       <body className={`${inter.variable} ${playfair.variable} antialiased`}>
         {children}
+        <Toaster
+          position="top-center"
+          theme="dark"
+          toastOptions={{
+            style: {
+              background: "#0B0B0F",
+              border: "1px solid #F5C518",
+              color: "#FFFFFF",
+            },
+          }}
+        />
       </body>
     </html>
   );
