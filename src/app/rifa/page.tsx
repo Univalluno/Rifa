@@ -504,7 +504,7 @@ function RifaContenido() {
                 CHONTICO NOCHE
               </p>
               <p className="rifa-footer-day">
-                9 DE OCTUBRE DE 2026
+                16 DE OCTUBRE DE 2026
               </p>
             </div>
             <span>✦</span>

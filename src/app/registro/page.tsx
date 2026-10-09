@@ -253,7 +253,7 @@ function RegistroForm() {
                 CHONTICO NOCHE
               </p>
               <p className="hero-footer-day">
-                9 DE OCTUBRE DE 2026
+                16 DE OCTUBRE DE 2026
               </p>
             </div>
             <span className="hero-footer-star">✦</span>

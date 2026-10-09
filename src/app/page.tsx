@@ -190,12 +190,12 @@ function HomeContenido() {
           <div className="hero-footer">
             <span className="hero-footer-star">✦</span>
             <div className="hero-footer-date">
-              <p className="hero-footer-lottery">
-                CHONTICO NOCHE
-              </p>
-              <p className="hero-footer-day">
-                9 DE OCTUBRE DE 2026
-              </p>
+              <p className="hero-footer-lottery" style={{ fontSize: '21px' }}>
+  CHONTICO NOCHE
+</p>
+              <p className="hero-footer-day" style={{ fontSize: '21px' }}>
+  16 DE OCTUBRE DE 2026
+</p>
             </div>
             <span className="hero-footer-star">✦</span>
           </div>
